@@ -1,0 +1,326 @@
+{
+  "colorRules": [
+    {
+      "color1": "white",
+      "color2": "black",
+      "score": 90,
+      "description": "经典黑白配，永不过时"
+    },
+    {
+      "color1": "white",
+      "color2": "blue",
+      "score": 85,
+      "description": "蓝白清爽，适合日常"
+    },
+    {
+      "color1": "black",
+      "color2": "red",
+      "score": 85,
+      "description": "黑红搭配，经典时尚"
+    },
+    {
+      "color1": "blue",
+      "color2": "white",
+      "score": 80,
+      "description": "蓝白条纹感，清爽干净"
+    },
+    {
+      "color1": "gray",
+      "color2": "white",
+      "score": 75,
+      "description": "灰白搭配，简约高级"
+    },
+    {
+      "color1": "black",
+      "color2": "gray",
+      "score": 75,
+      "description": "黑灰搭配，低调有质感"
+    },
+    {
+      "color1": "beige",
+      "color2": "brown",
+      "score": 80,
+      "description": "大地色系，温柔气质"
+    },
+    {
+      "color1": "pink",
+      "color2": "white",
+      "score": 75,
+      "description": "粉白搭配，甜美可爱"
+    },
+    {
+      "color1": "green",
+      "color2": "beige",
+      "score": 70,
+      "description": "军绿+米色，户外休闲风"
+    },
+    {
+      "color1": "purple",
+      "color2": "black",
+      "score": 70,
+      "description": "紫黑搭配，神秘高贵"
+    },
+    {
+      "color1": "red",
+      "color2": "blue",
+      "score": 45,
+      "description": "红蓝撞色，个性但难驾驭"
+    },
+    {
+      "color1": "green",
+      "color2": "red",
+      "score": 20,
+      "description": "红绿搭配，容易显得俗气"
+    },
+    {
+      "color1": "multicolor",
+      "color2": "white",
+      "score": 60,
+      "description": "花色配纯白，简约平衡"
+    },
+    {
+      "color1": "multicolor",
+      "color2": "black",
+      "score": 60,
+      "description": "花色配纯黑，沉稳压住"
+    }
+  ],
+  "occasions": [
+    {
+      "name": "日常出行",
+      "style": [
+        "casual"
+      ],
+      "forbidden": [
+        "避免过于正式"
+      ],
+      "description": "舒适休闲为主，T恤+牛仔裤+运动鞋"
+    },
+    {
+      "name": "上班通勤",
+      "style": [
+        "business",
+        "casual"
+      ],
+      "forbidden": [
+        "避免运动装",
+        "避免过于花哨"
+      ],
+      "description": "商务休闲风，衬衫+西裤/半身裙+皮鞋"
+    },
+    {
+      "name": "约会聚餐",
+      "style": [
+        "fashion",
+        "sweet"
+      ],
+      "forbidden": [
+        "避免过于随意"
+      ],
+      "description": "时尚精致，连衣裙或上装+半身裙"
+    },
+    {
+      "name": "运动健身",
+      "style": [
+        "sporty"
+      ],
+      "forbidden": [
+        "避免牛仔裤",
+        "避免皮鞋"
+      ],
+      "description": "运动装备，运动T恤+短裤+运动鞋"
+    },
+    {
+      "name": "校园出行",
+      "style": [
+        "academic",
+        "casual",
+        "sweet"
+      ],
+      "forbidden": [
+        "避免过于成熟"
+      ],
+      "description": "清新学院风，卫衣+百褶裙/牛仔裤"
+    },
+    {
+      "name": "正式场合",
+      "style": [
+        "business",
+        "fashion"
+      ],
+      "forbidden": [
+        "避免运动鞋",
+        "避免短裤",
+        "避免过于休闲"
+      ],
+      "description": "正装打扮，西装+西裤/长裙+皮鞋"
+    }
+  ],
+  "taboos": [
+    {
+      "description": "夏天穿羽绒服/厚外套",
+      "reason": "季节不符，容易中暑"
+    },
+    {
+      "description": "冬天穿短袖/短裤",
+      "reason": "季节不符，容易感冒"
+    },
+    {
+      "description": "运动鞋搭配西装",
+      "reason": "风格冲突，除非是商务休闲风"
+    },
+    {
+      "description": "同时穿超过三种颜色",
+      "reason": "整体显得杂乱无重点"
+    },
+    {
+      "description": "条纹上衣+条纹下装",
+      "reason": "条纹叠穿容易产生视觉混乱"
+    },
+    {
+      "description": "运动袜配皮鞋/凉鞋",
+      "reason": "风格不协调"
+    }
+  ],
+  "trendInfo": [
+    {
+      "id": "trend-spring-2025",
+      "season": "spring",
+      "yearQuarter": "2025-Q1",
+      "popularColors": [
+        "pink",
+        "green",
+        "white"
+      ],
+      "styles": [
+        "sweet",
+        "casual",
+        "pastoral"
+      ],
+      "taboos": [
+        "避免全身暗沉",
+        "避免厚重冬装"
+      ]
+    },
+    {
+      "id": "trend-summer-2025",
+      "season": "summer",
+      "yearQuarter": "2025-Q2",
+      "popularColors": [
+        "blue",
+        "white",
+        "yellow"
+      ],
+      "styles": [
+        "casual",
+        "sporty",
+        "fashion"
+      ],
+      "taboos": [
+        "避免深色吸热",
+        "避免多层叠穿"
+      ]
+    },
+    {
+      "id": "trend-autumn-2025",
+      "season": "autumn",
+      "yearQuarter": "2025-Q3",
+      "popularColors": [
+        "brown",
+        "beige",
+        "orange"
+      ],
+      "styles": [
+        "casual",
+        "academic",
+        "pastoral"
+      ],
+      "taboos": [
+        "避免过于清凉",
+        "避免荧光色"
+      ]
+    },
+    {
+      "id": "trend-winter-2025",
+      "season": "winter",
+      "yearQuarter": "2025-Q4",
+      "popularColors": [
+        "black",
+        "gray",
+        "red"
+      ],
+      "styles": [
+        "business",
+        "fashion",
+        "sweet"
+      ],
+      "taboos": [
+        "避免单薄透风",
+        "避免浅色易脏单品"
+      ]
+    }
+  ],
+  "matchTemplates": [
+    {
+      "id": "template-date-spring",
+      "name": "春日约会",
+      "occasion": "约会聚餐",
+      "season": "spring",
+      "style": "sweet",
+      "topRange": [
+        "top",
+        "dress"
+      ],
+      "bottomRange": [
+        "bottom"
+      ],
+      "outerwearRange": [
+        "outerwear"
+      ],
+      "shoesRange": [
+        "shoes"
+      ],
+      "description": "粉色或白色上装 + 浅色下装 + 小白鞋，甜美温柔"
+    },
+    {
+      "id": "template-office-summer",
+      "name": "夏日通勤",
+      "occasion": "上班通勤",
+      "season": "summer",
+      "style": "business",
+      "topRange": [
+        "top"
+      ],
+      "bottomRange": [
+        "bottom"
+      ],
+      "outerwearRange": [
+        "outerwear"
+      ],
+      "shoesRange": [
+        "shoes"
+      ],
+      "description": "浅色衬衫 + 西裤/半身裙 + 低跟皮鞋，清爽职业"
+    },
+    {
+      "id": "template-sport-autumn",
+      "name": "秋日运动",
+      "occasion": "运动健身",
+      "season": "autumn",
+      "style": "sporty",
+      "topRange": [
+        "top"
+      ],
+      "bottomRange": [
+        "bottom"
+      ],
+      "outerwearRange": [
+        "outerwear"
+      ],
+      "shoesRange": [
+        "shoes"
+      ],
+      "description": "运动卫衣 + 运动裤 + 跑步鞋，外套选防风夹克"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+node_modules/
+dist/
+.env
+*.log
+
+# Server uploads
+server/uploads/*
+
+# Server data (user-specific files, keep fashionKnowledge.json)
+server/src/data/users.json
+server/src/data/wardrobe-*.json
+server/src/data/favorites-*.json
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
