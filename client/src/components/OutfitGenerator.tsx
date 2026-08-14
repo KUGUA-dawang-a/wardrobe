@@ -31,9 +31,9 @@ export function OutfitGenerator({
   onOccasionChange, onUseAIChange, onGenerate,
 }: OutfitGeneratorProps) {
   return (
-    <div className="bg-slate-800 rounded-xl p-4 sm:p-6 space-y-4">
-      <h3 className="text-white font-medium flex items-center gap-2">
-        <Sparkles className="w-4 h-4 text-indigo-400" />
+    <div className="bg-surface rounded-2xl p-4 sm:p-6 space-y-4 border border-border shadow-card">
+      <h3 className="text-ink font-medium flex items-center gap-2">
+        <Sparkles className="w-4 h-4 text-primary" />
         生成穿搭推荐
       </h3>
 
@@ -41,7 +41,7 @@ export function OutfitGenerator({
       <select
         value={occasion}
         onChange={e => onOccasionChange(e.target.value)}
-        className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-slate-600 outline-none focus:border-indigo-400"
+        className="w-full bg-surface text-ink rounded-lg px-3 py-2 text-sm border border-border outline-none focus:border-primary focus:ring-2 focus:ring-primary-soft"
       >
         {OCCASION_OPTIONS.map(o => (
           <option key={o.value} value={o.value}>{o.label}</option>
@@ -49,12 +49,12 @@ export function OutfitGenerator({
       </select>
 
       {/* AI 开关 */}
-      <label className="flex items-center gap-2 text-sm text-slate-300 cursor-pointer select-none">
+      <label className="flex items-center gap-2 text-sm text-ink-2 cursor-pointer select-none">
         <input
           type="checkbox"
           checked={useAI}
           onChange={e => onUseAIChange(e.target.checked)}
-          className="rounded bg-slate-700 border-slate-500 text-indigo-500 focus:ring-indigo-500"
+          className="rounded accent-primary"
         />
         <Bot className="w-4 h-4" />
         AI 增强推荐（需启动 Ollama）
@@ -62,7 +62,7 @@ export function OutfitGenerator({
 
       {/* AI 状态 */}
       {!aiAvailable && useAI && (
-        <p className="text-xs text-yellow-400 bg-yellow-400/10 px-3 py-2 rounded-lg">
+        <p className="text-xs text-warning-on-soft bg-warning-soft px-3 py-2 rounded-lg">
           ⚠️ AI 助手未连接，当前使用本地规则推荐
         </p>
       )}
@@ -71,7 +71,7 @@ export function OutfitGenerator({
       <button
         onClick={onGenerate}
         disabled={generating}
-        className="w-full bg-indigo-500 hover:bg-indigo-600 disabled:bg-slate-600 disabled:cursor-not-allowed text-white rounded-lg py-2.5 text-sm font-medium transition-colors flex items-center justify-center gap-2"
+        className="w-full bg-primary hover:bg-primary-hover disabled:bg-ink-3 disabled:text-ink-2 disabled:cursor-not-allowed text-white rounded-lg py-2.5 text-sm font-medium transition-colors flex items-center justify-center gap-2"
       >
         <Sparkles className="w-4 h-4" />
         {generating ? '生成中...' : '生成穿搭推荐'}
