@@ -15,6 +15,9 @@ interface EditItemModalProps {
   onSave: (id: string, data: Partial<ClothingItem>) => Promise<void>;
 }
 
+const fieldClass =
+  'w-full bg-surface text-ink rounded-lg px-3 py-2 text-sm border border-border focus:border-primary focus:ring-2 focus:ring-primary-soft outline-none';
+
 export function EditItemModal({ item, onClose, onSave }: EditItemModalProps) {
   const [name, setName] = useState(item.name);
   const [category, setCategory] = useState<ClothingCategory>(item.category);
@@ -45,11 +48,11 @@ export function EditItemModal({ item, onClose, onSave }: EditItemModalProps) {
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={onClose}>
-      <div className="bg-slate-800 rounded-xl p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
+      <div className="bg-surface rounded-2xl p-6 w-full max-w-md border border-border shadow-card" onClick={e => e.stopPropagation()}>
         {/* 标题 */}
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-white font-medium">编辑衣物</h3>
-          <button onClick={onClose} className="text-slate-400 hover:text-white">
+          <h3 className="text-ink font-medium">编辑衣物</h3>
+          <button onClick={onClose} className="text-ink-2 hover:text-ink">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -59,29 +62,29 @@ export function EditItemModal({ item, onClose, onSave }: EditItemModalProps) {
           type="text"
           value={name}
           onChange={e => setName(e.target.value)}
-          className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-slate-600 focus:border-indigo-400 outline-none mb-3"
+          className={`${fieldClass} mb-3`}
         />
 
         {/* 分类 & 颜色 */}
         <div className="grid grid-cols-2 gap-3 mb-3">
           <select value={category} onChange={e => setCategory(e.target.value as ClothingCategory)}
-            className="bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-slate-600 focus:border-indigo-400 outline-none">
+            className={fieldClass}>
             {CATEGORY_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
           </select>
           <select value={color} onChange={e => setColor(e.target.value as ClothingColor)}
-            className="bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-slate-600 focus:border-indigo-400 outline-none">
+            className={fieldClass}>
             {COLOR_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
           </select>
         </div>
 
         {/* 季节 */}
         <div className="mb-3">
-          <p className="text-xs text-slate-400 mb-2">季节</p>
+          <p className="text-xs text-ink-2 mb-2">季节</p>
           <div className="flex flex-wrap gap-2">
             {SEASON_OPTIONS.map(s => (
               <button key={s.value} onClick={() => toggleSeason(s.value)}
                 className={`px-3 py-1 rounded-full text-xs transition-colors ${
-                  seasons.includes(s.value) ? 'bg-indigo-500 text-white' : 'bg-slate-700 text-slate-400'
+                  seasons.includes(s.value) ? 'bg-primary text-white' : 'bg-surface-2 text-ink-2'
                 }`}>
                 {s.label}
               </button>
@@ -91,12 +94,12 @@ export function EditItemModal({ item, onClose, onSave }: EditItemModalProps) {
 
         {/* 风格 */}
         <div className="mb-4">
-          <p className="text-xs text-slate-400 mb-2">风格</p>
+          <p className="text-xs text-ink-2 mb-2">风格</p>
           <div className="flex flex-wrap gap-2">
             {STYLE_OPTIONS.map(s => (
               <button key={s.value} onClick={() => toggleStyle(s.value)}
                 className={`px-3 py-1 rounded-full text-xs transition-colors ${
-                  styles.includes(s.value) ? 'bg-indigo-500 text-white' : 'bg-slate-700 text-slate-400'
+                  styles.includes(s.value) ? 'bg-primary text-white' : 'bg-surface-2 text-ink-2'
                 }`}>
                 {s.label}
               </button>
@@ -107,7 +110,7 @@ export function EditItemModal({ item, onClose, onSave }: EditItemModalProps) {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="w-full bg-indigo-500 hover:bg-indigo-600 disabled:bg-slate-600 text-white rounded-lg py-2 text-sm font-medium transition-colors"
+          className="w-full bg-primary hover:bg-primary-hover disabled:bg-ink-3 disabled:text-ink-2 text-white rounded-lg py-2 text-sm font-medium transition-colors"
         >
           {saving ? '保存中...' : '保存'}
         </button>

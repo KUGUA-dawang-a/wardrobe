@@ -104,7 +104,7 @@ export function WardrobePage() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-bold text-white">我的衣橱</h2>
+      <h2 className="text-xl font-bold text-ink">我的衣橱</h2>
 
       {/* 筛选栏 */}
       <SeasonFilter

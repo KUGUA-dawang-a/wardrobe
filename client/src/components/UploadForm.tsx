@@ -20,6 +20,9 @@ interface UploadFormProps {
   }) => Promise<void>;
 }
 
+const inputClass =
+  'w-full bg-surface text-ink rounded-lg px-3 py-2 text-sm border border-border focus:border-primary focus:ring-2 focus:ring-primary-soft outline-none';
+
 export function UploadForm({ onUpload }: UploadFormProps) {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string>('');
@@ -31,11 +34,9 @@ export function UploadForm({ onUpload }: UploadFormProps) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
 
-  // 拖拽或点击选择图片
   const onDrop = useCallback((accepted: File[]) => {
     const f = accepted[0];
     if (!f) return;
-    // 检查文件类型
     if (!['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(f.type)) {
       setError('只支持 JPG/PNG/GIF/WebP 格式');
       return;
@@ -43,7 +44,6 @@ export function UploadForm({ onUpload }: UploadFormProps) {
     setError('');
     setFile(f);
     setPreview(URL.createObjectURL(f));
-    // 自动用文件名作为默认名称
     if (!name) setName(f.name.replace(/\.[^.]+$/, ''));
   }, [name]);
 
@@ -51,21 +51,18 @@ export function UploadForm({ onUpload }: UploadFormProps) {
     onDrop,
     accept: { 'image/*': ['.jpg', '.jpeg', '.png', '.gif', '.webp'] },
     maxFiles: 1,
-    maxSize: 5 * 1024 * 1024, // 5MB
+    maxSize: 5 * 1024 * 1024,
     onDropRejected: () => setError('文件太大（最大 5MB）或不支持的类型'),
   });
 
-  // 切换季节（多选）
   const toggleSeason = (s: Season) => {
     setSeasons(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s]);
   };
 
-  // 切换风格（多选）
   const toggleStyle = (s: Style) => {
     setStyles(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s]);
   };
 
-  // 提交上传
   const handleSubmit = async () => {
     if (!file || !name || !category || !color || seasons.length === 0 || styles.length === 0) {
       setError('请填写完整信息');
@@ -75,7 +72,6 @@ export function UploadForm({ onUpload }: UploadFormProps) {
     setError('');
     try {
       await onUpload({ name, category: category as ClothingCategory, color: color as ClothingColor, season: seasons, style: styles, image: file });
-      // 重置表单
       setFile(null);
       setPreview('');
       setName('');
@@ -90,33 +86,31 @@ export function UploadForm({ onUpload }: UploadFormProps) {
     }
   };
 
-  // 清除选择的文件
   const clearFile = () => {
     setFile(null);
     setPreview('');
   };
 
   return (
-    <div className="bg-slate-800 rounded-xl p-4 sm:p-6 space-y-4">
-      <h3 className="text-white font-medium flex items-center gap-2">
-        <Upload className="w-4 h-4 text-indigo-400" />
+    <div className="bg-surface rounded-2xl p-4 sm:p-6 space-y-4 border border-border shadow-card">
+      <h3 className="text-ink font-medium flex items-center gap-2">
+        <Upload className="w-4 h-4 text-primary" />
         上传新衣服
       </h3>
 
-      {/* 拖拽上传区域 */}
       {!file ? (
         <div
           {...getRootProps()}
           className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
-            isDragActive ? 'border-indigo-400 bg-indigo-900/20' : 'border-slate-600 hover:border-slate-500'
+            isDragActive ? 'border-primary bg-primary-soft' : 'border-border hover:border-primary'
           }`}
         >
           <input {...getInputProps()} />
-          <Upload className="w-8 h-8 text-slate-500 mx-auto mb-2" />
-          <p className="text-slate-400 text-sm">
+          <Upload className="w-8 h-8 text-ink-3 mx-auto mb-2" />
+          <p className="text-ink-2 text-sm">
             {isDragActive ? '松开以上传' : '拖拽图片到此处，或点击选择'}
           </p>
-          <p className="text-slate-600 text-xs mt-1">支持 JPG/PNG/GIF/WebP，最大 5MB</p>
+          <p className="text-ink-3 text-xs mt-1">支持 JPG/PNG/GIF/WebP，最大 5MB</p>
         </div>
       ) : (
         <div className="relative">
@@ -125,26 +119,24 @@ export function UploadForm({ onUpload }: UploadFormProps) {
             onClick={clearFile}
             className="absolute top-2 right-2 bg-black/60 rounded-full p-1 hover:bg-black/80"
           >
-            <X className="w-4 h-4" />
+            <X className="w-4 h-4 text-white" />
           </button>
         </div>
       )}
 
-      {/* 名称 */}
       <input
         type="text"
         value={name}
         onChange={e => setName(e.target.value)}
         placeholder="衣服名称（如：白色T恤）"
-        className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-slate-600 focus:border-indigo-400 outline-none"
+        className={inputClass}
       />
 
-      {/* 分类 & 颜色（一行两个） */}
       <div className="grid grid-cols-2 gap-3">
         <select
           value={category}
           onChange={e => setCategory(e.target.value as ClothingCategory)}
-          className="bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-slate-600 focus:border-indigo-400 outline-none"
+          className={inputClass}
         >
           <option value="">选择分类</option>
           {CATEGORY_OPTIONS.map(o => (
@@ -154,7 +146,7 @@ export function UploadForm({ onUpload }: UploadFormProps) {
         <select
           value={color}
           onChange={e => setColor(e.target.value as ClothingColor)}
-          className="bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-slate-600 focus:border-indigo-400 outline-none"
+          className={inputClass}
         >
           <option value="">选择颜色</option>
           {COLOR_OPTIONS.map(o => (
@@ -163,9 +155,8 @@ export function UploadForm({ onUpload }: UploadFormProps) {
         </select>
       </div>
 
-      {/* 季节（多选标签） */}
       <div>
-        <p className="text-xs text-slate-400 mb-2">季节（可多选）</p>
+        <p className="text-xs text-ink-2 mb-2">季节（可多选）</p>
         <div className="flex flex-wrap gap-2">
           {SEASON_OPTIONS.map(s => (
             <button
@@ -173,8 +164,8 @@ export function UploadForm({ onUpload }: UploadFormProps) {
               onClick={() => toggleSeason(s.value)}
               className={`px-3 py-1 rounded-full text-xs transition-colors ${
                 seasons.includes(s.value)
-                  ? 'bg-indigo-500 text-white'
-                  : 'bg-slate-700 text-slate-400 hover:bg-slate-600'
+                  ? 'bg-primary text-white'
+                  : 'bg-surface-2 text-ink-2 hover:bg-border-strong'
               }`}
             >
               {s.label}
@@ -183,9 +174,8 @@ export function UploadForm({ onUpload }: UploadFormProps) {
         </div>
       </div>
 
-      {/* 风格（多选标签） */}
       <div>
-        <p className="text-xs text-slate-400 mb-2">风格（可多选）</p>
+        <p className="text-xs text-ink-2 mb-2">风格（可多选）</p>
         <div className="flex flex-wrap gap-2">
           {STYLE_OPTIONS.map(s => (
             <button
@@ -193,8 +183,8 @@ export function UploadForm({ onUpload }: UploadFormProps) {
               onClick={() => toggleStyle(s.value)}
               className={`px-3 py-1 rounded-full text-xs transition-colors ${
                 styles.includes(s.value)
-                  ? 'bg-indigo-500 text-white'
-                  : 'bg-slate-700 text-slate-400 hover:bg-slate-600'
+                  ? 'bg-primary text-white'
+                  : 'bg-surface-2 text-ink-2 hover:bg-border-strong'
               }`}
             >
               {s.label}
@@ -203,14 +193,12 @@ export function UploadForm({ onUpload }: UploadFormProps) {
         </div>
       </div>
 
-      {/* 错误提示 */}
-      {error && <p className="text-red-400 text-xs">{error}</p>}
+      {error && <p className="text-danger-on-soft text-xs">{error}</p>}
 
-      {/* 提交按钮 */}
       <button
         onClick={handleSubmit}
         disabled={uploading || !file}
-        className="w-full bg-indigo-500 hover:bg-indigo-600 disabled:bg-slate-600 disabled:cursor-not-allowed text-white rounded-lg py-2 text-sm font-medium transition-colors"
+        className="w-full bg-primary hover:bg-primary-hover disabled:bg-ink-3 disabled:text-ink-2 disabled:cursor-not-allowed text-white rounded-lg py-2 text-sm font-medium transition-colors"
       >
         {uploading ? '上传中...' : '上传'}
       </button>

@@ -45,67 +45,53 @@ interface SeasonFilterProps {
   onArchiveSeason: (season: Season, archived: boolean) => void;
 }
 
+const selectClass =
+  'bg-surface text-ink rounded-lg px-3 py-2 text-sm border border-border outline-none focus:border-primary focus:ring-2 focus:ring-primary-soft';
+
 export function SeasonFilter({
   seasonFilter, colorFilter, styleFilter, showArchived,
   onSeasonChange, onColorChange, onStyleChange, onShowArchivedChange,
   onArchiveSeason,
 }: SeasonFilterProps) {
   return (
-    <div className="bg-slate-800 rounded-xl p-4 space-y-3">
+    <div className="bg-surface rounded-2xl p-4 space-y-3 border border-border shadow-card">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {/* 季节筛选 */}
-        <select
-          value={seasonFilter}
-          onChange={e => onSeasonChange(e.target.value)}
-          className="bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-slate-600 outline-none focus:border-indigo-400"
-        >
+        <select value={seasonFilter} onChange={e => onSeasonChange(e.target.value)} className={selectClass}>
           {SEASON_FILTERS.map(f => (
             <option key={f.value} value={f.value}>{f.label}</option>
           ))}
         </select>
 
-        {/* 颜色筛选 */}
-        <select
-          value={colorFilter}
-          onChange={e => onColorChange(e.target.value)}
-          className="bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-slate-600 outline-none focus:border-indigo-400"
-        >
+        <select value={colorFilter} onChange={e => onColorChange(e.target.value)} className={selectClass}>
           {COLOR_FILTERS.map(f => (
             <option key={f.value} value={f.value}>{f.label}</option>
           ))}
         </select>
 
-        {/* 风格筛选 */}
-        <select
-          value={styleFilter}
-          onChange={e => onStyleChange(e.target.value)}
-          className="bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-slate-600 outline-none focus:border-indigo-400"
-        >
+        <select value={styleFilter} onChange={e => onStyleChange(e.target.value)} className={selectClass}>
           {STYLE_FILTERS.map(f => (
             <option key={f.value} value={f.value}>{f.label}</option>
           ))}
         </select>
 
-        {/* 显示归档 */}
-        <label className="flex items-center gap-2 text-sm text-slate-300 cursor-pointer select-none">
+        <label className="flex items-center gap-2 text-sm text-ink-2 cursor-pointer select-none">
           <input
             type="checkbox"
             checked={showArchived}
             onChange={e => onShowArchivedChange(e.target.checked)}
-            className="rounded bg-slate-700 border-slate-500 text-indigo-500 focus:ring-indigo-500"
+            className="rounded accent-primary"
           />
           显示已归档
         </label>
       </div>
 
-      {/* 一键归档/恢复季节 */}
-      <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-700">
-        <span className="text-xs text-slate-400 mr-1 self-center">换季归档：</span>
+      <div className="flex flex-wrap gap-2 pt-2 border-t border-border">
+        <span className="text-xs text-ink-2 mr-1 self-center">换季归档：</span>
         {SEASON_FILTERS.filter(f => f.value).map(f => (
           <button
             key={f.value}
             onClick={() => onArchiveSeason(f.value as Season, true)}
-            className="flex items-center gap-1 text-xs px-2 py-1 rounded bg-slate-700 text-yellow-400 hover:bg-slate-600"
+            className="flex items-center gap-1 text-xs px-2 py-1 rounded bg-surface-2 text-warning-on-soft hover:bg-border-strong"
           >
             <Archive className="w-3 h-3" />
             归档{f.label}
@@ -115,7 +101,7 @@ export function SeasonFilter({
           onClick={() => {
             (['spring', 'summer', 'autumn', 'winter'] as Season[]).forEach(s => onArchiveSeason(s, false));
           }}
-          className="flex items-center gap-1 text-xs px-2 py-1 rounded bg-slate-700 text-green-400 hover:bg-slate-600"
+          className="flex items-center gap-1 text-xs px-2 py-1 rounded bg-surface-2 text-success-on-soft hover:bg-border-strong"
         >
           <RefreshCw className="w-3 h-3" />
           全部恢复
