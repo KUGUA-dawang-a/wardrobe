@@ -3,12 +3,9 @@
  * 供 fashionEngine 和 aiService 使用
  */
 
-import fs from 'fs';
-import path from 'path';
+import { readDataJson } from './dataService';
 import { FashionKnowledge } from '../types';
 
-const knowledgePath = path.resolve(__dirname, '../data/fashionKnowledge.json');
-
 export function getKnowledge(): FashionKnowledge {
-  return JSON.parse(fs.readFileSync(knowledgePath, 'utf-8'));
+  return readDataJson<FashionKnowledge>('fashionKnowledge.json', true);
 }

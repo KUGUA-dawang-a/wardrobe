@@ -6,9 +6,9 @@
  */
 
 import fs from 'fs';
-import path from 'path';
+import { dataFilePath, writeDataJson } from './dataService';
 
-const CONFIG_PATH = path.resolve(__dirname, '../data/aiConfig.json');
+const CONFIG_PATH = dataFilePath('aiConfig.json');
 
 interface AIConfig {
   apiKey?: string;
@@ -29,6 +29,5 @@ export function getApiKey(): string {
 
 /** 保存 API Key 到 aiConfig.json */
 export function saveApiKey(apiKey: string): void {
-  const cfg: AIConfig = { apiKey };
-  fs.writeFileSync(CONFIG_PATH, JSON.stringify(cfg, null, 2));
+  writeDataJson('aiConfig.json', { apiKey } satisfies AIConfig);
 }

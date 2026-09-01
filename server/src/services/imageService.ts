@@ -10,9 +10,10 @@ import path from 'path';
 import fs from 'fs';
 import { v4 as uuid } from 'uuid';
 import { config } from '../config';
+import { getUploadsDir } from './dataService';
 
 /** 上传目录的绝对路径 */
-const uploadsBase = path.resolve(__dirname, '../../uploads');
+const uploadsBase = getUploadsDir();
 
 /**
  * 压缩并保存图片为 WebP

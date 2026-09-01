@@ -6,12 +6,12 @@
  */
 
 import fs from 'fs';
-import path from 'path';
+import { dataFilePath, writeDataJson } from './dataService';
 import { ClothingItem } from '../types';
 
 /** 获取某个用户的衣橱文件路径 */
 function getWardrobePath(userId: string): string {
-  return path.resolve(__dirname, `../data/wardrobe-${userId}.json`);
+  return dataFilePath(`wardrobe-${userId}.json`);
 }
 
 /** 读取用户的衣橱数据 */
@@ -23,7 +23,7 @@ export function getWardrobe(userId: string): ClothingItem[] {
 
 /** 保存衣橱数据 */
 export function saveWardrobe(userId: string, items: ClothingItem[]): void {
-  fs.writeFileSync(getWardrobePath(userId), JSON.stringify(items, null, 2));
+  writeDataJson(`wardrobe-${userId}.json`, items);
 }
 
 /** 添加一件衣服 */

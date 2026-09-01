@@ -11,6 +11,7 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { config } from './config';
+import { ensureDataDirs, ensureSeedFiles } from './services/dataService';
 
 // 路由
 import authRouter from './routes/auth';
@@ -22,12 +23,16 @@ import trendsRouter from './routes/trends';
 
 const app = express();
 
+// 启动前确保数据目录存在，并补齐内置种子数据
+ensureDataDirs();
+ensureSeedFiles();
+
 // ---------- 中间件 ----------
 app.use(cors());
 app.use(express.json());
 
 // 静态文件：让前端能访问上传的图片
-app.use('/uploads', express.static(path.resolve(__dirname, '../uploads')));
+app.use('/uploads', express.static(config.uploadDir));
 
 // ---------- 路由 ----------
 app.use('/api/auth', authRouter);

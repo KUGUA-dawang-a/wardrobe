@@ -10,7 +10,6 @@
 
 import { Router, Response } from 'express';
 import fs from 'fs';
-import path from 'path';
 import { v4 as uuid } from 'uuid';
 import { AuthRequest, authMiddleware } from '../middleware/auth';
 import { getWardrobe } from '../services/wardrobeService';
@@ -18,6 +17,7 @@ import { generateOutfits } from '../services/fashionEngine';
 import { aiGenerateOutfits, checkAI } from '../services/aiService';
 import { getApiKey, saveApiKey } from '../services/aiConfigService';
 import { getKnowledge } from '../services/knowledgeService';
+import { dataFilePath, writeDataJson } from '../services/dataService';
 import { OutfitSuggestion, ClothingItem, SavedOutfit } from '../types';
 
 const router = Router();
@@ -25,7 +25,7 @@ router.use(authMiddleware);
 
 /** 获取用户的收藏文件路径 */
 function getFavoritesPath(userId: string): string {
-  return path.resolve(__dirname, `../data/favorites-${userId}.json`);
+  return dataFilePath(`favorites-${userId}.json`);
 }
 
 /** 读取收藏 */
@@ -37,7 +37,7 @@ function getFavorites(userId: string): SavedOutfit[] {
 
 /** 保存收藏 */
 function saveFavorites(userId: string, favs: SavedOutfit[]): void {
-  fs.writeFileSync(getFavoritesPath(userId), JSON.stringify(favs, null, 2));
+  writeDataJson(`favorites-${userId}.json`, favs);
 }
 
 /**

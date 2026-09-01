@@ -10,14 +10,14 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { v4 as uuid } from 'uuid';
 import fs from 'fs';
-import path from 'path';
 import { config } from '../config';
+import { dataFilePath, writeDataJson } from '../services/dataService';
 import { User } from '../types';
 
 const router = Router();
 
 /** 用户数据文件路径 */
-const usersPath = path.resolve(__dirname, '../data/users.json');
+const usersPath = dataFilePath('users.json');
 
 /** 读取所有用户 */
 function getUsers(): User[] {
@@ -27,7 +27,7 @@ function getUsers(): User[] {
 
 /** 保存用户列表 */
 function saveUsers(users: User[]): void {
-  fs.writeFileSync(usersPath, JSON.stringify(users, null, 2));
+  writeDataJson('users.json', users);
 }
 
 /**
@@ -69,10 +69,7 @@ router.post('/register', (req: Request, res: Response) => {
   saveUsers(users);
 
   // 创建该用户的空衣橱文件
-  const wardrobePath = path.resolve(__dirname, `../data/wardrobe-${newUser.id}.json`);
-  if (!fs.existsSync(wardrobePath)) {
-    fs.writeFileSync(wardrobePath, JSON.stringify([], null, 2));
-  }
+  writeDataJson(`wardrobe-${newUser.id}.json`, []);
 
   // 签发 token
   const token = jwt.sign(

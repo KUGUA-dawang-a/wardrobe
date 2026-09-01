@@ -5,22 +5,18 @@
  * 的增删改查读写操作，直接操作 fashionKnowledge.json。
  */
 
-import fs from 'fs';
-import path from 'path';
 import { v4 as uuid } from 'uuid';
+import { readDataJson, writeDataJson } from './dataService';
 import { TrendInfo, MatchTemplate, FashionKnowledge } from '../types';
-
-/** 知识库 JSON 文件路径 */
-const knowledgePath = path.resolve(__dirname, '../data/fashionKnowledge.json');
 
 /** 读取完整的知识库数据 */
 function readKnowledge(): FashionKnowledge {
-  return JSON.parse(fs.readFileSync(knowledgePath, 'utf-8'));
+  return readDataJson<FashionKnowledge>('fashionKnowledge.json', true);
 }
 
 /** 保存完整的知识库数据 */
 function saveKnowledge(data: FashionKnowledge): void {
-  fs.writeFileSync(knowledgePath, JSON.stringify(data, null, 2), 'utf-8');
+  writeDataJson('fashionKnowledge.json', data);
 }
 
 // ==================== 季节潮流 CRUD ====================

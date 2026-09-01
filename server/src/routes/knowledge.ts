@@ -12,23 +12,19 @@
  */
 
 import { Router, Request, Response } from 'express';
-import fs from 'fs';
-import path from 'path';
+import { readDataJson, writeDataJson } from '../services/dataService';
 import { FashionKnowledge, ColorRule, OccasionTemplate, Taboo } from '../types';
 
 const router = Router();
 
-/** 知识库文件路径 */
-const knowledgePath = path.resolve(__dirname, '../data/fashionKnowledge.json');
-
 /** 读取知识库 */
 function getKnowledge(): FashionKnowledge {
-  return JSON.parse(fs.readFileSync(knowledgePath, 'utf-8'));
+  return readDataJson<FashionKnowledge>('fashionKnowledge.json', true);
 }
 
 /** 保存知识库 */
 function saveKnowledge(k: FashionKnowledge): void {
-  fs.writeFileSync(knowledgePath, JSON.stringify(k, null, 2));
+  writeDataJson('fashionKnowledge.json', k);
 }
 
 /** 获取完整知识库 */
