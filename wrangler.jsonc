@@ -2,6 +2,9 @@
   "name": "wardrobe",
   "compatibility_date": "2026-09-01",
   "main": "./src/worker.ts",
+  "vars": {
+    "BACKEND_ORIGIN": "https://wardrobe-production-cb00.up.railway.app"
+  },
   "assets": {
     "directory": "./client/dist",
     "binding": "ASSETS",
