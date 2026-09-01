@@ -4,8 +4,9 @@
  */
 
 export const config = {
-  port: 3001,
-  jwtSecret: 'wardrobe-jwt-secret-key-2026', // JWT 签名密钥
+  // 部署平台（如 Railway/Render）会注入 PORT 环境变量
+  port: parseInt(process.env.PORT || '3001', 10),
+  jwtSecret: process.env.JWT_SECRET || 'wardrobe-jwt-secret-key-2026', // JWT 签名密钥（生产环境请通过环境变量覆盖）
   jwtExpiresIn: '7d',                        // Token 有效期 7 天
   uploadDir: 'uploads',                       // 图片存储目录
   webpQuality: 80,                            // WebP 压缩质量（0-100）
