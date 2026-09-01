@@ -10,6 +10,7 @@ server/uploads/*
 server/src/data/users.json
 server/src/data/wardrobe-*.json
 server/src/data/favorites-*.json
+server/src/data/aiConfig.json
 
 # IDE
 .idea/

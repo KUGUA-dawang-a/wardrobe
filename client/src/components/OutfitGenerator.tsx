@@ -4,17 +4,27 @@
  * 选择场合、切换 AI/Toggle、生成穿搭推荐。
  */
 
-import { Sparkles, Bot } from 'lucide-react';
+import { Sparkles, Bot, Shirt } from 'lucide-react';
 
 interface OutfitGeneratorProps {
   occasion: string;
   useAI: boolean;
+  riskLevel: number;
   generating: boolean;
   aiAvailable: boolean;
   onOccasionChange: (v: string) => void;
   onUseAIChange: (v: boolean) => void;
+  onRiskLevelChange: (v: number) => void;
   onGenerate: () => void;
 }
+
+const RISK_LABELS: Record<number, string> = {
+  1: '保守',
+  2: '稳妥',
+  3: '均衡',
+  4: '大胆',
+  5: '前卫',
+};
 
 const OCCASION_OPTIONS = [
   { value: '', label: '不限场合' },
@@ -27,8 +37,8 @@ const OCCASION_OPTIONS = [
 ];
 
 export function OutfitGenerator({
-  occasion, useAI, generating, aiAvailable,
-  onOccasionChange, onUseAIChange, onGenerate,
+  occasion, useAI, riskLevel, generating, aiAvailable,
+  onOccasionChange, onUseAIChange, onRiskLevelChange, onGenerate,
 }: OutfitGeneratorProps) {
   return (
     <div className="bg-surface rounded-2xl p-4 sm:p-6 space-y-4 border border-border shadow-card">
@@ -48,6 +58,32 @@ export function OutfitGenerator({
         ))}
       </select>
 
+      {/* 配色风险滑块 */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-ink-2 flex items-center gap-2">
+            <Shirt className="w-4 h-4 text-primary" />
+            配色风险
+          </span>
+          <span className="text-xs text-primary-on-soft bg-primary-soft rounded-full px-2.5 py-0.5">
+            {RISK_LABELS[riskLevel]}
+          </span>
+        </div>
+        <input
+          type="range"
+          min={1}
+          max={5}
+          step={1}
+          value={riskLevel}
+          onChange={e => onRiskLevelChange(Number(e.target.value))}
+          className="w-full accent-primary cursor-pointer"
+        />
+        <div className="flex justify-between text-xs text-ink-2">
+          <span>保守</span>
+          <span>大胆</span>
+        </div>
+      </div>
+
       {/* AI 开关 */}
       <label className="flex items-center gap-2 text-sm text-ink-2 cursor-pointer select-none">
         <input
@@ -57,7 +93,7 @@ export function OutfitGenerator({
           className="rounded accent-primary"
         />
         <Bot className="w-4 h-4" />
-        AI 增强推荐（需启动 Ollama）
+        AI 增强推荐（DeepSeek）
       </label>
 
       {/* AI 状态 */}

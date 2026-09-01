@@ -9,7 +9,7 @@
 - **多条件筛选**：按季节、颜色、风格筛选衣橱
 - **换季归档**：将某季节衣物一键归档，归档衣物不出现在穿搭推荐中
 - **本地穿搭规则引擎**：根据配色规则、风格兼容性自动匹配穿搭（无需联网）
-- **Ollama AI 增强推荐**：如果本地启动了 Ollama，自动使用 AI 生成更智能的搭配建议
+- **DeepSeek AI 增强推荐**：接入 DeepSeek API 自动生成更智能的搭配建议
 - **穿搭收藏**：收藏喜欢的搭配方案
 - **潮流知识库管理**：可视化编辑配色规则、场合模板、穿搭禁忌
 
@@ -21,7 +21,7 @@
 | 后端 | Node.js + Express + TypeScript |
 | 鉴权 | JWT (jsonwebtoken) + bcryptjs |
 | 图片 | Multer + Sharp (WebP 压缩) |
-| AI | Ollama (本地运行, 可选, 自动降级) |
+| AI | DeepSeek API (OpenAI 兼容, 可选, 自动降级) |
 | 数据 | JSON 文件存储（无需安装数据库） |
 
 ## 目录结构
@@ -41,7 +41,7 @@ wardrobe/
 │   │   ├── services/              # 业务逻辑
 │   │   │   ├── wardrobeService.ts # 衣橱 CRUD
 │   │   │   ├── fashionEngine.ts   # 本地穿搭规则引擎
-│   │   │   ├── aiService.ts       # Ollama AI 接口
+│   │   │   ├── aiService.ts       # DeepSeek AI 接口
 │   │   │   └── imageService.ts    # 图片压缩与删除
 │   │   └── routes/                # API 路由
 │   │       ├── auth.ts            # 注册 / 登录
@@ -82,7 +82,7 @@ wardrobe/
 
 - **Node.js 18+**（推荐 20 LTS）
 - **npm**（随 Node.js 一起安装）
-- **Ollama**（可选，用于 AI 增强推荐）
+- **DeepSeek API Key**（可选，用于 AI 增强推荐）
 
 ### 1. 启动后端
 
@@ -127,27 +127,22 @@ npm run dev
 
 或者直接使用已有的默认数据（`server/src/data/fashionKnowledge.json`）。
 
-### 4. 可选：安装 Ollama（AI 增强推荐）
+### 4. 可选：配置 DeepSeek API（AI 增强推荐）
 
 如果要使用 AI 生成穿搭推荐：
 
+1. 在 [DeepSeek 开放平台](https://platform.deepseek.com) 注册并申请 API Key
+2. 将 Key 填入 `server/.env`（该文件已被 gitignore 排除，不会提交）：
+
 ```bash
-# 1. 安装 Ollama
-#    Windows: 从 https://ollama.com 下载安装包
-#    macOS:   brew install ollama
-#    Linux:   curl -fsSL https://ollama.com/install.sh | sh
-
-# 2. 拉取推荐模型（约 2GB）
-ollama pull llama3.2
-
-# 3. 启动 Ollama 服务
-ollama serve
-
-# 4. 重启后端，AI 功能自动生效
-#    前端穿搭页面会显示 "✨ AI 增强" 标签
+DEEPSEEK_API_KEY=sk-你的Key
 ```
 
-> 如果 Ollama 未启动，系统会自动降级为本地规则引擎，不影响正常使用。
+3. 重启后端，AI 功能自动生效
+   - 前端穿搭页面会显示 "✨ AI 增强" 标签
+   - 默认模型为 `deepseek-chat`，可在 `.env` 中用 `DEEPSEEK_MODEL` 覆盖
+
+> 如果未配置 Key 或请求失败，系统会自动降级为本地规则引擎，不影响正常使用。
 
 ## 使用指南
 
@@ -181,7 +176,7 @@ ollama serve
 
 1. 点击顶部导航的"穿搭"
 2. 选择目标场合（可选）
-3. 打开"AI 增强推荐"开关（如果启动了 Ollama）
+3. 打开"AI 增强推荐"开关（已配置 DeepSeek API Key）
 4. 点击"生成穿搭推荐"
 5. 查看推荐结果，点击心形图标收藏
 
@@ -210,7 +205,7 @@ ollama serve
 | GET | `/api/outfits/saved` | 获取收藏穿搭 |
 | POST | `/api/outfits/saved` | 收藏穿搭 |
 | DELETE | `/api/outfits/saved/:id` | 取消收藏 |
-| GET | `/api/outfits/ai-status` | 检查 Ollama 状态 |
+| GET | `/api/outfits/ai-status` | 检查 DeepSeek 状态 |
 
 ## 常见问题
 
@@ -227,4 +222,4 @@ A: 点击右上角的退出按钮，重新登录其他账号。
 A: 目前没有密码重置功能，建议在知识库文件中手动删除用户重新注册。
 
 **Q: AI 推荐不生效？**
-A: 确保已安装 Ollama 并运行 `ollama serve`。可以在穿搭页面查看 AI 状态。
+A: 确保已在 `server/.env` 配置 `DEEPSEEK_API_KEY` 并重启后端。可以在穿搭页面查看 AI 状态。

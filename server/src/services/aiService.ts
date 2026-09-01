@@ -1,21 +1,27 @@
 /**
- * Ollama AI 时尚顾问服务
+ * DeepSeek AI 时尚顾问服务
  *
- * 调用本地 Ollama 模型来增强穿搭推荐。
- * 如果 Ollama 未启动，自动降级（返回 null），不会报错。
+ * 调用 DeepSeek API（OpenAI 兼容接口）来增强穿搭推荐。
+ * 如果未配置 API Key 或请求失败，自动降级（返回 null），不会报错。
  *
  * 提示词强制 AI 只输出标准 JSON，方便前端直接渲染。
- * 现在将用户自定义的季节潮流和搭配模板一并传入模型。
+ * 将用户自定义的季节潮流和搭配模板一并传入模型。
  */
 
 import axios from 'axios';
 import { config } from '../config';
+import { getApiKey } from './aiConfigService';
 import { ClothingItem, FashionKnowledge, OutfitSuggestion } from '../types';
 
-/** 检查 Ollama 是否在运行 */
-export async function checkOllama(): Promise<boolean> {
+/** 检查 DeepSeek API 是否可用（已配置 Key 且服务可达） */
+export async function checkAI(): Promise<boolean> {
+  const apiKey = getApiKey();
+  if (!apiKey) return false;
   try {
-    const res = await axios.get(`${config.ollamaUrl}/api/tags`, { timeout: 3000 });
+    const res = await axios.get(`${config.deepseek.baseUrl}/models`, {
+      timeout: 3000,
+      headers: { Authorization: `Bearer ${apiKey}` },
+    });
     return res.status === 200;
   } catch {
     return false;
@@ -23,21 +29,23 @@ export async function checkOllama(): Promise<boolean> {
 }
 
 /**
- * 调用 Ollama 生成穿搭推荐
+ * 调用 DeepSeek 生成穿搭推荐
  *
  * @param items 用户的衣橱（当前筛选后的）
  * @param knowledge 潮流知识库（含 trendInfo / matchTemplates）
  * @param targetOccasion 目标场合
- * @returns AI 生成的穿搭推荐，或 null（Ollama 不可用）
+ * @param riskLevel 配色风险值 1-5（1 最保守，5 最大胆），默认 3
+ * @returns AI 生成的穿搭推荐，或 null（API 不可用）
  */
 export async function aiGenerateOutfits(
   items: ClothingItem[],
   knowledge: FashionKnowledge,
   targetOccasion?: string,
+  riskLevel = 3,
 ): Promise<OutfitSuggestion[] | null> {
-  // 先检查 Ollama 是否运行
-  const available = await checkOllama();
-  if (!available) return null;
+  // 先检查 API 是否可用
+  const apiKey = getApiKey();
+  if (!apiKey) return null;
 
   // 构建给 AI 的衣橱描述
   const itemsDesc = items.map(i =>
@@ -59,18 +67,28 @@ export async function aiGenerateOutfits(
     `${t.description}（原因: ${t.reason}）`
   ).join('\n');
 
-  // ===== 新增：构建季节潮流描述 =====
+  // ===== 构建季节潮流描述 =====
   const trendInfoDesc = (knowledge.trendInfo || []).map(t =>
     `${t.yearQuarter} ${t.season}季：流行色 ${t.popularColors.join('、')}，推荐风格 ${t.styles.join('、')}，禁忌 ${t.taboos.join('、')}`
   ).join('\n');
 
-  // ===== 新增：构建自定义搭配模板描述 =====
+  // ===== 构建自定义搭配模板描述 =====
   const matchTemplatesDesc = (knowledge.matchTemplates || []).map(m =>
     `模板"${m.name}"：场合 ${m.occasion}，季节 ${m.season}，风格 ${m.style}，上装可选 ${m.topRange.join('/')}，下装可选 ${m.bottomRange.join('/')}，外套可选 ${m.outerwearRange.join('/')}，鞋子可选 ${m.shoesRange.join('/')}，说明：${m.description}`
   ).join('\n');
 
+  // 构建风险等级描述
+  const riskTexts: Record<number, string> = {
+    1: '1（保守经典）：配色安全协调，回避撞色，如黑白、蓝白、大地色系',
+    2: '2（稳健）：以安全协调配色为主，最多少量低对比点缀',
+    3: '3（均衡）：安全与大胆平衡，可适度使用撞色',
+    4: '4（大胆）：鼓励高对比撞色（如红蓝、蓝橙、紫黄），配色个性鲜明',
+    5: '5（前卫）：追求强视觉冲击，大胆使用撞色与高对比，不要保守',
+  };
+  const riskText = riskTexts[riskLevel] || riskTexts[3];
+
   // 构建提示词 —— 强制 JSON 输出
-  const prompt = `你是一个专业的时尚穿搭顾问。请根据以下用户的衣橱和潮流知识库，生成穿搭推荐。
+  const prompt = `请根据以下用户的衣橱和潮流知识库，生成穿搭推荐。
 
 【潮流配色规则】
 ${colorRulesDesc}
@@ -86,6 +104,8 @@ ${matchTemplatesDesc ? `【用户自定义搭配模板】\n${matchTemplatesDesc}
 
 ${targetOccasion ? `【目标场合】${targetOccasion}` : ''}
 
+【风险等级】${riskText}
+
 【用户的衣橱】
 ${itemsDesc}
 
@@ -93,7 +113,7 @@ ${itemsDesc}
 请严格遵守以下规则：
 1. 不要违反穿搭禁忌
 2. 衣服的季节要匹配
-3. 配色要协调
+3. 配色要与风险等级匹配（见【风险等级】）：≤2 用保守协调配色，≥4 用大胆撞色但保持整体和谐
 4. 符合目标场合（如果有指定）
 5. 参考季节流行趋势，优先使用流行色
 6. 如果有搭配模板命中目标场合，优先按照模板推荐
@@ -116,14 +136,34 @@ ${itemsDesc}
 请生成 3-5 套不同的搭配方案。`;
 
   try {
-    const response = await axios.post(`${config.ollamaUrl}/api/generate`, {
-      model: 'llama3.2',
-      prompt,
-      stream: false,
-      options: { temperature: 0.7 },
-    }, { timeout: 30000 });
+    const response = await axios.post(
+      `${config.deepseek.baseUrl}/chat/completions`,
+      {
+        model: config.deepseek.model,
+        messages: [
+          {
+            role: 'system',
+            content: '你是一个专业的时尚穿搭顾问。必须严格遵守用户要求，只输出标准 JSON，不要输出任何其他文字。',
+          },
+          { role: 'user', content: prompt },
+        ],
+        temperature: 0.7,
+        stream: false,
+      },
+      {
+        timeout: 30000,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiKey}`,
+        },
+      },
+    );
 
-    const text = response.data.response;
+    let text = response.data.choices?.[0]?.message?.content;
+    if (!text) return null;
+
+    // 清理可能包裹的 markdown 代码块围栏
+    text = text.trim().replace(/^```(?:json)?/i, '').replace(/```$/, '').trim();
 
     // 从返回文本中提取 JSON
     const jsonMatch = text.match(/\{[^]*\}/);
@@ -144,7 +184,7 @@ ${itemsDesc}
       colorHarmony: o.colorHarmony || '',
     }));
   } catch (error: any) {
-    console.warn('[AI Service] Ollama 调用失败:', error.message);
+    console.warn('[AI Service] DeepSeek 调用失败:', error.message);
     return null;
   }
 }

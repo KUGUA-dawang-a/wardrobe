@@ -11,6 +11,7 @@ import { OutfitSuggestion, ClothingItem, SavedOutfit } from '../types';
 import { OutfitGenerator } from '../components/OutfitGenerator';
 import { OutfitResult } from '../components/OutfitResult';
 import { SavedOutfits } from '../components/SavedOutfits';
+import { AISettings } from '../components/AISettings';
 
 interface GenerateResponse {
   outfits: OutfitSuggestion[];
@@ -25,6 +26,7 @@ export function OutfitPage() {
 
   const [occasion, setOccasion] = useState('');
   const [useAI, setUseAI] = useState(false);
+  const [riskLevel, setRiskLevel] = useState(3);
   const [generated, setGenerated] = useState<GenerateResponse | null>(null);
 
   const { data: aiStatus } = useQuery<{ available: boolean }>({
@@ -50,6 +52,7 @@ export function OutfitPage() {
       const params = new URLSearchParams();
       if (occasion) params.set('occasion', occasion);
       if (useAI) params.set('useAI', 'true');
+      params.set('risk', String(riskLevel));
       return get<GenerateResponse>(`/outfits/generate?${params.toString()}`);
     },
     onSuccess: (data) => {
@@ -82,20 +85,24 @@ export function OutfitPage() {
       {/* AI 状态横幅 */}
       {aiStatus && !aiStatus.available && useAI && (
         <div className="bg-warning-soft border border-border rounded-xl px-4 py-3 text-xs text-warning-on-soft">
-          💡 AI 助手未连接（Ollama 未运行），当前使用本地规则推荐
+          💡 AI 助手未连接（DeepSeek API 不可用），当前使用本地规则推荐
         </div>
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* 左侧：生成器 */}
+        {/* 左侧：AI 设置 + 生成器 */}
         <div className="lg:col-span-1 space-y-6">
+          <AISettings />
+
           <OutfitGenerator
             occasion={occasion}
             useAI={useAI}
+            riskLevel={riskLevel}
             generating={generateMutation.isPending}
             aiAvailable={aiStatus?.available || false}
             onOccasionChange={setOccasion}
             onUseAIChange={setUseAI}
+            onRiskLevelChange={setRiskLevel}
             onGenerate={() => generateMutation.mutate()}
           />
 

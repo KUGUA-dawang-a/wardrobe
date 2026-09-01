@@ -24,12 +24,14 @@ const CATEGORY_PRIORITY = ['top', 'bottom', 'shoes'] as const;
  * @param items 用户的衣橱（已筛选/已过滤归档）
  * @param knowledge 潮流知识库（含 trendInfo / matchTemplates）
  * @param targetOccasion 目标场合（可选）
+ * @param riskLevel 配色风险值 1-5（1 最保守，5 最大胆），默认 3
  * @returns 推荐搭配列表
  */
 export function generateOutfits(
   items: ClothingItem[],
   knowledge: FashionKnowledge,
   targetOccasion?: string,
+  riskLevel = 3,
 ): OutfitSuggestion[] {
   const suggestions: OutfitSuggestion[] = [];
 
@@ -51,7 +53,7 @@ export function generateOutfits(
   for (const dress of dresses) {
     for (const shoe of shoes) {
       if (!checkTaboo(dress, shoe, trendInfo)) continue;
-      const score = calculateScore([dress, shoe], knowledge, matchedTrend);
+      const score = calculateScore([dress, shoe], knowledge, matchedTrend, riskLevel);
       suggestions.push(buildSuggestion([dress, shoe], score, knowledge, targetOccasion, matchedTrend, matchTemplates));
     }
   }
@@ -61,22 +63,22 @@ export function generateOutfits(
     for (const bottom of bottoms) {
       for (const shoe of shoes) {
         if (!checkTaboo(top, bottom, shoe, trendInfo)) continue;
-        const score = calculateScore([top, bottom, shoe], knowledge, matchedTrend);
+        const score = calculateScore([top, bottom, shoe], knowledge, matchedTrend, riskLevel);
         suggestions.push(buildSuggestion([top, bottom, shoe], score, knowledge, targetOccasion, matchedTrend, matchTemplates));
 
         // 尝试加外套
         for (const outer of outerwears) {
           if (!checkTaboo(top, bottom, shoe, outer, trendInfo)) continue;
-          const outerScore = calculateScore([top, bottom, shoe, outer], knowledge, matchedTrend);
+          const outerScore = calculateScore([top, bottom, shoe, outer], knowledge, matchedTrend, riskLevel);
           suggestions.push(buildSuggestion([top, bottom, shoe, outer], outerScore, knowledge, targetOccasion, matchedTrend, matchTemplates));
         }
       }
     }
   }
 
-  // 按评分降序排列，取前 20 条
+  // 按原始评分降序排列，取前 20 条（展示分 clamp 到 100）
   suggestions.sort((a, b) => b.score - a.score);
-  return suggestions.slice(0, 20);
+  return suggestions.slice(0, 20).map(s => ({ ...s, score: Math.min(100, Math.round(s.score)) }));
 }
 
 /**
@@ -150,14 +152,14 @@ function calculateScore(
   items: ClothingItem[],
   knowledge: FashionKnowledge,
   matchedTrend: TrendInfo | null,
+  riskLevel: number,
 ): number {
   let score = 70; // 基础分
 
-  // 1. 配色评分（最高 +15）
+  // 1. 配色评分（随风险值调整，最高约 +15）
   const colorPairs = getAllColorPairs(items);
   for (const [c1, c2] of colorPairs) {
-    if (isComplementary(c1, c2, knowledge)) score += 8;
-    if (isSameColor(c1, c2)) score += 4;
+    score += colorPairScore(c1, c2, knowledge, riskLevel);
   }
 
   // 2. 风格一致性（最高 +10）
@@ -180,7 +182,7 @@ function calculateScore(
     if (hasTrendStyle) score += 5;
   }
 
-  return Math.min(100, Math.max(0, score));
+  return Math.max(0, score); // 不封顶，保留原始分用于排序（展示时再 clamp 到 100）
 }
 
 /** 获取所有衣服两两之间的颜色对 */
@@ -195,20 +197,29 @@ function getAllColorPairs(items: ClothingItem[]): [string, string][] {
 }
 
 /**
- * 是否是互补色
- * 现在从知识库的 colorRules 中读取（取评分 >= 70 的配对）
+ * 计算一对颜色的配色得分（随风险值调整）
+ *
+ * riskLevel 1-5：1 最保守，5 最大胆。
+ * 利用知识库 colorRules 的评分：高分 = 安全协调配色，低分 = 大胆撞色。
+ * 分段插值：低风险偏好协调，高风险偏好撞色，避免中间档坍缩。
  */
-function isComplementary(c1: string, c2: string, knowledge: FashionKnowledge): boolean {
-  return knowledge.colorRules.some(r =>
-    r.score >= 70 && (
-      (r.color1 === c1 && r.color2 === c2) || (r.color1 === c2 && r.color2 === c1)
-    )
-  );
-}
+function colorPairScore(c1: string, c2: string, knowledge: FashionKnowledge, riskLevel: number): number {
+  const r = (riskLevel - 1) / 4; // 0~1
 
-/** 是否是同色系 */
-function isSameColor(c1: string, c2: string): boolean {
-  return c1 === c2 && c1 !== 'multicolor';
+  // 同色系：安全选择，低风险加分，高风险不加分
+  if (c1 === c2 && c1 !== 'multicolor') {
+    return Math.round(6 * (1 - r));
+  }
+
+  const rule = knowledge.colorRules.find(rec =>
+    (rec.color1 === c1 && rec.color2 === c2) || (rec.color1 === c2 && rec.color2 === c1));
+
+  // 知识库无记录的配色：高风险时适度鼓励尝试新组合
+  if (!rule) return Math.round(6 * r);
+
+  const safe = rule.score >= 70 ? 12 : 0;
+  const bold = rule.score >= 80 ? 3 : rule.score >= 60 ? 8 : rule.score >= 45 ? 14 : 0;
+  return Math.round(safe * (1 - r) + bold * r);
 }
 
 /** 生成场合描述 */

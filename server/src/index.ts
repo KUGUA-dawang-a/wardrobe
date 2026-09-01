@@ -5,6 +5,8 @@
  * 静态文件服务用于提供上传的图片。
  */
 
+import 'dotenv/config';
+
 import express from 'express';
 import cors from 'cors';
 import path from 'path';

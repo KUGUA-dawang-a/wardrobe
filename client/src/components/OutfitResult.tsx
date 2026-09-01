@@ -89,7 +89,7 @@ export function OutfitResult({ outfits, aiOutfits, source, aiAvailable, items, s
 
       {!aiAvailable && source !== 'empty' && (
         <p className="text-xs text-warning-on-soft bg-warning-soft px-3 py-2 rounded-lg text-center">
-          💡 AI 助手未连接（Ollama 未运行），当前使用本地规则推荐
+          💡 AI 助手未连接（DeepSeek API 不可用），当前使用本地规则推荐
         </p>
       )}
     </div>

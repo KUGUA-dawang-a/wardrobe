@@ -5,7 +5,7 @@
  * GET  /api/outfits/saved     — 获取收藏的穿搭
  * POST /api/outfits/saved     — 收藏一套穿搭
  * DELETE /api/outfits/saved/:id — 取消收藏
- * GET  /api/outfits/ai-status — 检查 Ollama 是否可用
+ * GET  /api/outfits/ai-status — 检查 DeepSeek 是否可用
  */
 
 import { Router, Response } from 'express';
@@ -15,7 +15,8 @@ import { v4 as uuid } from 'uuid';
 import { AuthRequest, authMiddleware } from '../middleware/auth';
 import { getWardrobe } from '../services/wardrobeService';
 import { generateOutfits } from '../services/fashionEngine';
-import { aiGenerateOutfits, checkOllama } from '../services/aiService';
+import { aiGenerateOutfits, checkAI } from '../services/aiService';
+import { getApiKey, saveApiKey } from '../services/aiConfigService';
 import { getKnowledge } from '../services/knowledgeService';
 import { OutfitSuggestion, ClothingItem, SavedOutfit } from '../types';
 
@@ -44,7 +45,11 @@ function saveFavorites(userId: string, favs: SavedOutfit[]): void {
  * 查询参数: ?occasion=上班&useAI=true
  */
 router.get('/generate', async (req: AuthRequest, res: Response) => {
-  const { occasion, useAI } = req.query as Record<string, string>;
+  const { occasion, useAI, risk } = req.query as Record<string, string>;
+
+  // 解析并夹取风险值（1-5，默认 3）
+  const parsedRisk = parseInt(String(risk ?? '3'), 10);
+  const riskLevel = isNaN(parsedRisk) ? 3 : Math.min(5, Math.max(1, parsedRisk));
 
   // 获取用户的衣橱（排除归档的）
   let items = getWardrobe(req.user!.userId).filter(i => !i.isArchived);
@@ -60,15 +65,15 @@ router.get('/generate', async (req: AuthRequest, res: Response) => {
   const knowledge = getKnowledge();
 
   // 先用规则引擎生成
-  const ruleOutfits = generateOutfits(items, knowledge, occasion);
+  const ruleOutfits = generateOutfits(items, knowledge, occasion, riskLevel);
 
-  // 如果要求使用 AI 且 Ollama 可用
+  // 如果要求使用 AI 且 DeepSeek 可用
   let aiOutfits: OutfitSuggestion[] | null = null;
   let aiAvailable = false;
 
   if (useAI === 'true') {
-    aiOutfits = await aiGenerateOutfits(items, knowledge, occasion);
-    aiAvailable = await checkOllama();
+    aiOutfits = await aiGenerateOutfits(items, knowledge, occasion, riskLevel);
+    aiAvailable = await checkAI();
   }
 
   res.json({
@@ -79,10 +84,25 @@ router.get('/generate', async (req: AuthRequest, res: Response) => {
   });
 });
 
-/** GET /api/outfits/ai-status — 检查 Ollama 是否可用 */
+/** GET /api/outfits/ai-status — 检查 DeepSeek 是否可用 */
 router.get('/ai-status', async (_req: AuthRequest, res: Response) => {
-  const available = await checkOllama();
+  const available = await checkAI();
   res.json({ available });
+});
+
+/** GET /api/outfits/ai-config — 返回是否已配置 API Key（不返回 Key 本身） */
+router.get('/ai-config', (_req: AuthRequest, res: Response) => {
+  res.json({ configured: getApiKey().length > 0 });
+});
+
+/** PUT /api/outfits/ai-config — 保存 API Key 到 aiConfig.json */
+router.put('/ai-config', (req: AuthRequest, res: Response) => {
+  const { apiKey } = req.body as { apiKey?: string };
+  if (!apiKey || !apiKey.trim()) {
+    return res.status(400).json({ error: 'API Key 不能为空' });
+  }
+  saveApiKey(apiKey.trim());
+  res.json({ configured: true });
 });
 
 /** GET /api/outfits/saved — 获取收藏 */
